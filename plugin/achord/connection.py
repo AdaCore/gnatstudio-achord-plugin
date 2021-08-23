@@ -3,6 +3,7 @@
 import zmq
 import json
 
+PLUGIN_IDENTIFIER = "gnatstudio"
 
 global_id = 1
 # Global counter for request IDs
@@ -14,6 +15,8 @@ class Payload(object):
     def __init__(self, method, params):
         self.method = method
         self.params = params
+
+        self.params["pluginIdentifier"] = PLUGIN_IDENTIFIER
         global global_id
         self.id = global_id
         global_id += 1
@@ -52,7 +55,7 @@ class ConnectionMonitor(object):
             # This indicates that the connection is down
             return False
         
-        return result and 'result' in result
+        return result and result['errorCode'] == 'NoError'
 
     def close(self):
         """Close the connection"""
@@ -70,4 +73,8 @@ class ConnectionMonitor(object):
         raw_bytes = bytes(json.dumps(payload.to_dict()), 'utf-8')
         self.socket.send(raw_bytes)
         raw_response = self.socket.recv()
-        return json.loads(raw_response)
+        response = json.loads(raw_response)
+        if 'result' in response:
+            return response['result']
+        else:
+            return False

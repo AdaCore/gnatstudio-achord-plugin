@@ -15,5 +15,21 @@ p2 = Payload("delete", {
 # Check the assignment of payload Ids
 assert(p2.id == p1.id + 1)
 
+# Check retrieving the list of elements
+
+get_elements = Payload(
+    "getElements",
+    {"elementSelection": [
+                        {
+                          "pathAttr": "elementType",
+                          "pathMatcher": "glob",
+                          "elements": [
+                            "**"
+                          ]
+                        }]
+    }
+)
+result = m.blocking_request(get_elements)
+assert(len(result["elements"]) == 2)
 m.close()
 assert(not m.is_alive())
