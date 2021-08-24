@@ -8,6 +8,7 @@ PLUGIN_IDENTIFIER = "gnatstudio"
 global_id = 1
 # Global counter for request IDs
 
+
 class Payload(object):
     """A high-level raw representation of a jsonrpc payload.
        Auto fills the "jsonrpc" field and the "id" field via  """
@@ -23,11 +24,12 @@ class Payload(object):
 
     def to_dict(self):
         """Return a raw dict version of self"""
-        return {"method": self.method, 
-                "params": self.params, 
-                "jsonrpc": "2.0",
-                "id": self.id}
-
+        return {
+            "method": self.method,
+            "params": self.params,
+            "jsonrpc": "2.0",
+            "id": self.id,
+        }
 
 
 class ConnectionMonitor(object):
@@ -54,8 +56,8 @@ class ConnectionMonitor(object):
         except zmq.error.ZMQError:
             # This indicates that the connection is down
             return False
-        
-        return result and result['errorCode'] == 'NoError'
+
+        return result and result["errorCode"] == "NoError"
 
     def close(self):
         """Close the connection"""
@@ -70,11 +72,11 @@ class ConnectionMonitor(object):
            returns a json dict of the corresponding response - and False if
            the response is invalid.
         """
-        raw_bytes = bytes(json.dumps(payload.to_dict()), 'utf-8')
+        raw_bytes = bytes(json.dumps(payload.to_dict()), "utf-8")
         self.socket.send(raw_bytes)
         raw_response = self.socket.recv()
         response = json.loads(raw_response)
-        if 'result' in response:
-            return response['result']
+        if "result" in response:
+            return response["result"]
         else:
             return False
