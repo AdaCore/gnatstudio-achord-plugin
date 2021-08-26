@@ -4,6 +4,8 @@ import GPS
 from extensions.private.xml import X
 from modules import Module
 
+from achord.connection import ConnectionMonitor, Payload
+
 # This encodes the XML description of the Achord project attributes
 PROJECT_ATTRIBUTES = [
     X(
@@ -34,6 +36,17 @@ PROJECT_ATTRIBUTES = [
     ).children(X("string")),
 ]
 
+PROJECT_HELP = """
+To add support for connecting to Achord, modify your project
+file to contain an attribute "Achord_Server_Address" in the "IDE"
+package. For instance:
+
+   package IDE is
+      for Achord_Server_Address use "tcp://localhost:5555";
+   end IDE;
+
+"""
+
 # Load the project attributes
 def list_to_xml(items):
     return "\n".join(str(i) for i in items)
@@ -48,6 +61,11 @@ GPS.parse_xml(list_to_xml(PROJECT_ATTRIBUTES))
 
 
 class Achord_Integration(Module):
+
+    def __init__(self):
+        self.connection = None
+        super(Module, self).__init__()
+
     def open_console(self):
         """Open the Achord integration console"""
         self.console = GPS.Console("Achord")
@@ -58,6 +76,14 @@ class Achord_Integration(Module):
 
     def connect_to_achord(self, url):
         """Attempt to connect to the Achord server"""
+        self.connection = ConnectionMonitor(url)
+        error = self.connection.connect()
+        if error:
+            self.log(f"Error when connecting: {error}")
+        if self.connection.is_alive():
+            self.log(f"Connection established on {url}.")
+        else:
+            self.log(f"Could not establish connection on {url}.")
 
     def setup(self):
         self.load_project()
@@ -77,8 +103,8 @@ class Achord_Integration(Module):
         if url:
             self.connect_to_achord(url)
         else:
-            self.log("Achord not set up")
-            # TODO: add a more informative message
+            self.log("Achord not set up for this project.")
+            self.log(PROJECT_HELP)
 
 
 # Log the fact that the plugin was loaded

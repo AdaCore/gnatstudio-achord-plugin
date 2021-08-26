@@ -37,12 +37,24 @@ class ConnectionMonitor(object):
     """
 
     def __init__(self, requests_url):
-        """Establishes a connection.
-           requests_url is a string of the form "<protocol>://<host>:port"
-        """
-        self.context = zmq.Context()
-        self.socket = self.context.socket(zmq.REQ)
-        self.connection = self.socket.connect(requests_url)
+        """requests_url is a string of the form "<protocol>://<host>:port" """
+        self.url = requests_url
+
+    def connect(self):
+        """Attempt a connection. Return a string containing the error if
+           there was one, None otherwise"""
+        try:
+            self.context = zmq.Context()
+            self.socket = self.context.socket(zmq.REQ)
+            self.connection = self.socket.connect(self.url)
+        except Exception as inst:
+            self.context = None
+            self.socket = None
+            self.connection = None
+            return(f"Exception occurred: {type(inst)} {inst}")
+
+    def error(self):
+        """Return the error stored in self, None if there isn't one"""
 
     def is_alive(self):
         """Return True if the connection is alive"""
