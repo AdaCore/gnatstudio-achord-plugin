@@ -13,3 +13,8 @@ There are three ways to make the plug-in available to GNAT Studio - choose one:
 ## Usage
 
 ## Development and testing
+
+## TO DO
+
+ * make the connection system asynchronous, so delays in connection don't freeze the GNAT Studio UI
+ * add a background connection monitor

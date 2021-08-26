@@ -64,6 +64,9 @@ class Achord_Integration(Module):
 
     def __init__(self):
         self.connection = None
+        self.log = []
+        # The text log, one entry par call to log()
+
         super(Module, self).__init__()
 
     def open_console(self):
@@ -72,7 +75,9 @@ class Achord_Integration(Module):
 
     def log(self, message, add_lf=True):
         self.open_console()
-        self.console.write(message + ("\n" if add_lf else ""))
+        m = message + ("\n" if add_lf else "")
+        self.log.append(m)
+        self.console.write(m)
 
     def connect_to_achord(self, url):
         """Attempt to connect to the Achord server"""
