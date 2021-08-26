@@ -1,4 +1,4 @@
 tests: force
-	@PYTHONPATH=`pwd`/plugin python tests/test_connection.py
+	@PYTHONPATH=`pwd`/achord-integration python tests/test_connection.py
 
 force:
