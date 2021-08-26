@@ -18,3 +18,12 @@ There are three ways to make the plug-in available to GNAT Studio - choose one:
 
  * make the connection system asynchronous, so delays in connection don't freeze the GNAT Studio UI
  * add a background connection monitor
+ * implement the Elements view
+ * implement the functions:
+   * disconnect
+   * annotate_editor
+   * remove_editor_annotations
+   * create_link
+   * create_code_element
+   * open_elements
+   * synchronise

@@ -1,6 +1,8 @@
 """Achord / GNAT Studio integration plugin """
 
 import GPS
+
+from gs_utils import make_interactive
 from extensions.private.xml import X
 from modules import Module
 
@@ -61,22 +63,95 @@ GPS.parse_xml(list_to_xml(PROJECT_ATTRIBUTES))
 
 
 class Achord_Integration(Module):
+    """The main module for this plugin"""
 
     def __init__(self):
         self.connection = None
-        self.log = []
+        self.accumulated_log = []
         # The text log, one entry par call to log()
 
         super(Module, self).__init__()
 
+    def setup(self):
+        # Create menus when this module is setup.
+        # It is better to call make_interactive here than use the @interactive
+        # decorator on the method. The latter would take effect even if the
+        # module is never initialized.
+
+        make_interactive(
+            self.open_console,
+            menu="/Achord/Open Achord Log")
+
+        make_interactive(
+            self.open_elements,
+            menu="/Achord/Open Achord Elements")
+
+        make_interactive(
+            self.synchronise,
+            menu="/Achord/Synchronise")
+
+        make_interactive(
+            self.disconnect,
+            menu="/Achord/Disconnect From Server")
+
+        make_interactive(
+            self.load_project,
+            menu="/Achord/Connect to Server")
+
+        make_interactive(
+            self.create_code_element,
+            menu="/Achord/Create Code Element")
+
+        make_interactive(
+            self.annotate_editor,
+            menu="/Achord/Annotate Editor")
+
+        make_interactive(
+            self.remove_editor_annotations,
+            menu="/Achord/Remove Editor Annotations")
+
+        make_interactive(
+            self.create_link,
+            menu="/Achord/Create Link")
+
+        self.load_project()
+
+    def disconnect(self):
+        """Open the elements view"""
+        GPS.Console().write("NOT IMPLEMENTED\n")
+
+    def annotate_editor(self):
+        """Open the elements view"""
+        GPS.Console().write("NOT IMPLEMENTED\n")
+
+    def remove_editor_annotations(self):
+        """Open the elements view"""
+        GPS.Console().write("NOT IMPLEMENTED\n")
+
+    def create_link(self):
+        """Open the elements view"""
+        GPS.Console().write("NOT IMPLEMENTED\n")
+
+    def create_code_element(self):
+        """Open the elements view"""
+        GPS.Console().write("NOT IMPLEMENTED\n")
+
+    def open_elements(self):
+        """Open the elements view"""
+        GPS.Console().write("NOT IMPLEMENTED\n")
+
+    def synchronise(self):
+        """Open the elements view"""
+        GPS.Console().write("NOT IMPLEMENTED\n")
+
     def open_console(self):
         """Open the Achord integration console"""
-        self.console = GPS.Console("Achord")
+        self.console = GPS.Console("Achord Log")
 
     def log(self, message, add_lf=True):
         self.open_console()
         m = message + ("\n" if add_lf else "")
-        self.log.append(m)
+        self.accumulated_log.append(m)
         self.console.write(m)
 
     def connect_to_achord(self, url):
@@ -90,10 +165,8 @@ class Achord_Integration(Module):
         else:
             self.log(f"Could not establish connection on {url}.")
 
-    def setup(self):
-        self.load_project()
-
     def project_view_changed(self):
+        """Called automatically when the project has changed"""
         self.load_project()
 
     def load_project(self):
@@ -110,6 +183,8 @@ class Achord_Integration(Module):
         else:
             self.log("Achord not set up for this project.")
             self.log(PROJECT_HELP)
+
+# Create the interactive actions and their associated menus
 
 
 # Log the fact that the plugin was loaded
