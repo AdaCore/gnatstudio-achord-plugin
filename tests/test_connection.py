@@ -2,6 +2,7 @@ from achord.connection import ConnectionMonitor, Payload
 
 # Establish a connection
 m = ConnectionMonitor("tcp://localhost:5555")
+m.connect()
 assert(m.is_alive())
 
 # Create two dummy payloads
