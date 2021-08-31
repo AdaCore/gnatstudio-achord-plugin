@@ -78,41 +78,25 @@ class Achord_Integration(Module):
         # decorator on the method. The latter would take effect even if the
         # module is never initialized.
 
-        make_interactive(
-            self.open_console,
-            menu="/Achord/Open Achord Log")
+        make_interactive(self.open_console, menu="/Achord/Open Achord Log")
+
+        make_interactive(self.open_elements, menu="/Achord/Open Achord Elements")
+
+        make_interactive(self.synchronise, menu="/Achord/Synchronise")
+
+        make_interactive(self.disconnect, menu="/Achord/Disconnect From Server")
+
+        make_interactive(self.load_project, menu="/Achord/Connect to Server")
+
+        make_interactive(self.create_code_element, menu="/Achord/Create Code Element")
+
+        make_interactive(self.annotate_editor, menu="/Achord/Annotate Editor")
 
         make_interactive(
-            self.open_elements,
-            menu="/Achord/Open Achord Elements")
+            self.remove_editor_annotations, menu="/Achord/Remove Editor Annotations"
+        )
 
-        make_interactive(
-            self.synchronise,
-            menu="/Achord/Synchronise")
-
-        make_interactive(
-            self.disconnect,
-            menu="/Achord/Disconnect From Server")
-
-        make_interactive(
-            self.load_project,
-            menu="/Achord/Connect to Server")
-
-        make_interactive(
-            self.create_code_element,
-            menu="/Achord/Create Code Element")
-
-        make_interactive(
-            self.annotate_editor,
-            menu="/Achord/Annotate Editor")
-
-        make_interactive(
-            self.remove_editor_annotations,
-            menu="/Achord/Remove Editor Annotations")
-
-        make_interactive(
-            self.create_link,
-            menu="/Achord/Create Link")
+        make_interactive(self.create_link, menu="/Achord/Create Link")
 
         self.load_project()
 
@@ -138,7 +122,7 @@ class Achord_Integration(Module):
 
     def open_elements(self):
         """Open the elements view"""
-        GPS.Console().write("NOT IMPLEMENTED\n")
+        GPS.execute_action("open Achord Elements")
 
     def synchronise(self):
         """Open the elements view"""
@@ -162,6 +146,9 @@ class Achord_Integration(Module):
             self.log(f"Error when connecting: {error}")
         if self.connection.is_alive():
             self.log(f"Connection established on {url}.")
+
+            # TODO: refresh the Elements View here if it's up
+
         else:
             self.log(f"Could not establish connection on {url}.")
 
@@ -183,8 +170,6 @@ class Achord_Integration(Module):
         else:
             self.log("Achord not set up for this project.")
             self.log(PROJECT_HELP)
-
-# Create the interactive actions and their associated menus
 
 
 # Log the fact that the plugin was loaded

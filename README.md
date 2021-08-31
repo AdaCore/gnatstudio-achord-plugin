@@ -18,7 +18,12 @@ There are three ways to make the plug-in available to GNAT Studio - choose one:
 
  * make the connection system asynchronous, so delays in connection don't freeze the GNAT Studio UI
  * add a background connection monitor
- * implement the Elements view
+ * refresh the Achord Elements view when a connection becomes available
+ * Elements view
+   * connect a contextual menu?
+   * add more information to the list?
+   * add a filter to the list
+   * add a toplevel label to indicate the state of the connection
  * implement the functions:
    * disconnect
    * annotate_editor

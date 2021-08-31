@@ -39,6 +39,7 @@ class ConnectionMonitor(object):
     def __init__(self, requests_url):
         """requests_url is a string of the form "<protocol>://<host>:port" """
         self.url = requests_url
+        self.socket = None
 
     def connect(self):
         """Attempt a connection. Return a string containing the error if
@@ -51,7 +52,7 @@ class ConnectionMonitor(object):
             self.context = None
             self.socket = None
             self.connection = None
-            return(f"Exception occurred: {type(inst)} {inst}")
+            return f"Exception occurred: {type(inst)} {inst}"
 
     def error(self):
         """Return the error stored in self, None if there isn't one"""
@@ -62,6 +63,10 @@ class ConnectionMonitor(object):
         # we use a "delete" request for a non-existent id instead.
         # TODO: replace this with a hearbeat monitoring request when it
         # is implemented.
+
+        if self.socket is None:
+            return False
+
         dummy = Payload("delete", {"_id": "__gnatstudio_non_existent_id"})
         try:
             result = self.blocking_request(dummy)
