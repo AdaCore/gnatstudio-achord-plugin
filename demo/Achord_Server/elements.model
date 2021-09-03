@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="ASCII"?>
+<xmi:XMI xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:com.altran.achord.core="http://com/altran/achord/core">
+  <com.altran.achord.core:CoreServicesResources>
+    <primaryResources/>
+    <internalIndex>
+      <internalIdToElementMap value="#/5" key="#1"/>
+      <internalIdToElementMap value="#/6" key="#2"/>
+    </internalIndex>
+  </com.altran.achord.core:CoreServicesResources>
+  <com.altran.achord.core:Element uri="achord://reqif/req#1" elementType="reqif/Requirement" location="src/requirements.reqif#1-2" internalIdentifier="#1" content="4"/>
+  <com.altran.achord.core:Element uri="achord://reqif/sa#2" elementType="reqif/SatisfactionArgument" location="src/satisfactionarguments.reqif#2-3" internalIdentifier="#2" content="6"/>
+  <com.altran.achord.core:Element uri="achord://reqif/req#1" elementType="reqif/Requirement" location="src/requirements.reqif#1-2" internalIdentifier="#1" content="4"/>
+  <com.altran.achord.core:Element uri="achord://reqif/sa#2" elementType="reqif/SatisfactionArgument" location="src/satisfactionarguments.reqif#2-3" internalIdentifier="#2" content="6"/>
+  <com.altran.achord.core:Element uri="achord://reqif/req#1" elementType="reqif/Requirement" location="src/requirements.reqif#1-2" internalIdentifier="#1" content="4"/>
+  <com.altran.achord.core:Element uri="achord://reqif/sa#2" elementType="reqif/SatisfactionArgument" location="src/satisfactionarguments.reqif#2-3" internalIdentifier="#2" content="6"/>
+</xmi:XMI>

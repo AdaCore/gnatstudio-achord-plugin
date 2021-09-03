@@ -1,0 +1,55 @@
+ConsistencyRelations com.altran.reveal
+
+DirectedLink SATISFIES -- make this case insensitive or enforce a naming convention?
+  ---
+  Satisfaction arguments SATISIFY requirements.
+  ---
+  source
+  	ElementSelection
+  		elements
+  			reqif/Requirement	
+  		pathAttr elementType
+  		pathMatcher glob
+  			
+  target
+  	ElementSelection
+  		elements
+  			reqif/SatisfactionArgument
+  		pathAttr elementType
+  		pathMatcher glob
+    
+  cotype SatisfiedBy
+
+DirectedLink IMPLEMENTS
+  ---
+  Satisfaction arguments are SUPPORTED by specification
+  domain knowledge.
+  ---
+  source
+    ElementSelection
+    	elements
+    		reqif/Requirement
+    	pathAttr elementType
+    	pathMatcher glob
+
+  target
+     ElementSelection
+    	elements
+		gnatstudio/ada
+    	pathAttr elementType
+    	pathMatcher glob
+   
+  cotype ImplementedBy
+
+Property COMPLETE
+  ---
+  Satisfaction arguments are COMPLETE with respect to their
+  SUPPORT and SATISIFIES links.
+  ---
+  element
+    ElementSelection
+  		elements
+  			reqif/SatisfactionArgument
+  			
+  associatedLinkTypes
+    Satisifies

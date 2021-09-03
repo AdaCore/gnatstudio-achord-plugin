@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="ASCII"?>
+<com.altran.achord.core:CoreServiceLinks xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:com.altran.achord.core="http://com/altran/achord/core">
+  <links source="achord://reqif/req#1" target="achord://reqif/sa#2" link="SATISFIES"/>
+</com.altran.achord.core:CoreServiceLinks>
