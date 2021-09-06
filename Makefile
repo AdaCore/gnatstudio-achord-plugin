@@ -1,4 +1,4 @@
 tests: force
-	@PYTHONPATH=`pwd`/achord-integration python tests/test_connection.py
+	cd tests ; sh run.sh
 
 force:
