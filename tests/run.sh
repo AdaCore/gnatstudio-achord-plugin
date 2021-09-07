@@ -3,7 +3,12 @@
 # The environment variable ACHORD_SERVER_JAR should contain the full path
 # to the Achord_Server.jar executable
 
-[ "$ACHORD_SERVER_JAR" = "" ] && (echo "set up ACHORD_SERVER_JAR" ; exit 1)
+tests="test_connection.py test_element_handling.py"
+
+if [ "$ACHORD_SERVER_JAR" = "" ]; then
+  echo "set up ACHORD_SERVER_JAR"
+  exit 1
+fi
 
 SCRIPT=`realpath $0`
 SCRIPTPATH=`dirname $SCRIPT`
@@ -17,8 +22,12 @@ java -jar $ACHORD_SERVER_JAR $WORKDIR/demo > server_log 2>&1 & pid=`echo $!`
 
 echo "server launched, pid=$pid"
 
-export PYTHONPATH=$SCRIPTPATH/../achord-integration
-python test_connection.py
+export PYTHONPATH=$SCRIPTPATH/../achord-integration:$SCRIPTPATH/../achord-integration/achord
+
+for t in $tests ; do
+   echo "# $t"
+   python $t
+done
 
 kill $pid 
 rm -rf $WORKDIR

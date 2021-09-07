@@ -17,7 +17,7 @@ COL_STATUS = 5
 COL_URI = 6
 
 
-class ElementList(object):
+class ElementListWidget(object):
     def __init__(self, elements_list):
         """elements_list is a raw representation of elements, 
            as returned by Achord.

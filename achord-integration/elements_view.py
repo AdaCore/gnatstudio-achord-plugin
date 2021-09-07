@@ -1,7 +1,7 @@
 """The GNAT Studio Achord Elements View"""
 
 import GPS
-from achord.elements_list import ElementList
+from achord.elements_list import ElementListWidget
 from achord.achord_connection import get_achord_connection
 from achord.connection import Payload
 
@@ -58,5 +58,5 @@ class Elements_View(Module):
         result = connection.blocking_request(get_elements)
 
         # TODO: add error handling for the contents of result
-        self.element_list = ElementList(result["elements"])
+        self.element_list = ElementListWidget(result["elements"])
         return self.element_list.box
