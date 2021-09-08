@@ -3,7 +3,7 @@
 import os
 import json
 
-from connection import Payload
+from raw_payload import Payload
 from project_support import make_path_project_relative
 
 
@@ -42,6 +42,8 @@ class AchordElement(object):
 
         self.file, self.line = parse_achord_location(location)
 
+    def __repr__(self):
+        return self.uri
 
 # Definitions of the status for elements
 SYNC_UNKNOWN = 0  #   unknown (initial state)
@@ -61,14 +63,6 @@ class CodeElement(AchordElement):
         self.sha1 = sha1
         self.sync_status = SYNC_UNKNOWN
         self.subp = None
-
-    @classmethod
-    def from_achord_raw_data(cls, raw_elements_list):
-        """Process the "elements" field in the result of getElements
-           and return a list of CodeElement corresponding to entries
-           that correspond to code elements in this list. Other entries
-           are ignored.
-        """
 
     def to_achord_save_payload(self):
         return {

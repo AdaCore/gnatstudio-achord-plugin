@@ -3,33 +3,8 @@
 import zmq
 import json
 
-PLUGIN_IDENTIFIER = "gnatstudio"
-
-global_id = 1
-# Global counter for request IDs
-
-
-class Payload(object):
-    """A high-level raw representation of a jsonrpc payload.
-       Auto fills the "jsonrpc" field and the "id" field via  """
-
-    def __init__(self, method, params):
-        self.method = method
-        self.params = params
-
-        self.params["pluginIdentifier"] = PLUGIN_IDENTIFIER
-        global global_id
-        self.id = global_id
-        global_id += 1
-
-    def to_dict(self):
-        """Return a raw dict version of self"""
-        return {
-            "method": self.method,
-            "params": self.params,
-            "jsonrpc": "2.0",
-            "id": self.id,
-        }
+from raw_payload import Payload
+from code_elements import AchordElement, CodeElement, parse_achord_location
 
 
 class ConnectionMonitor(object):
@@ -40,6 +15,7 @@ class ConnectionMonitor(object):
         """requests_url is a string of the form "<protocol>://<host>:port" """
         self.url = requests_url
         self.socket = None
+        self.elements = []  # The downloaded elements
 
     def connect(self):
         """Attempt a connection. Return a string containing the error if
@@ -56,6 +32,7 @@ class ConnectionMonitor(object):
 
     def error(self):
         """Return the error stored in self, None if there isn't one"""
+        pass
 
     def is_alive(self):
         """Return True if the connection is alive"""
@@ -79,6 +56,41 @@ class ConnectionMonitor(object):
     def close(self):
         """Close the connection"""
         self.socket.close()
+
+    def download_all_elements(self):
+        # Cleanup the previously stored elements
+        self.elements = []
+
+        # Request all elements from Achord
+        get_elements = Payload(
+            "getElements",
+            {"elementSelection": [
+                                {
+                                  "pathAttr": "elementType",
+                                  "pathMatcher": "glob",
+                                  "elements": [
+                                    "**"
+                                  ]
+                                }]
+            }
+        )
+        result = self.blocking_request(get_elements)
+        if not "elements" in result:
+            # TODO: log a message
+            return
+        for el in result["elements"]:
+            if el["uri"].startswith("achord://gnatstudio") and el["elementType"] == "code":
+                file, line = parse_achord_location(el["location"])
+                sha1 = el["uri"].split("/")[-1][:-2]
+                self.elements.append(CodeElement(file, line, sha1))
+            else:
+                self.elements.append(AchordElement(
+                    el["elementType"],
+                    el["location"],
+                    el["uri"],
+                    el["sourceStatus"],
+                    el["status"]
+                ))
 
     def blocking_request(self, payload):
         """Send a request to the socket and block while waiting for the
