@@ -7,26 +7,13 @@ import libadalang as lal
 import re
 import hashlib
 
+from project_support import make_path_project_relative
+from code_elements import SYNC_CONNECTED, SYNC_ORPHANED, SubpDecl
+
 whitespaces = re.compile("\s+")
 
-class SubpDecl(object):
-
-    def __init__(self, line, column, orig_text):
-        """A subprogram decl. orig_text is the full text of the profile, encoded in utf-8"""
-        self.line = line
-        self.column = column
-        self.orig_text = orig_text
-        
-        # Make an invariant hash of the profile spec
-
-        # Replace any sequence of whitespaces/tabs/new lines with one space...
-        condensed_text = re.sub(pat, " ", orig_text)
-
-        # ... and produce a hash of that.
-        self.sha1 = hashlib.sha1(condensed_text.encode("utf-8")).hexdigest()
 
 class Unit_Analyser(object):
-
     def __init__(self, unit):
         """unit is a Libadalang AnalysisUnit"""
 
@@ -34,14 +21,35 @@ class Unit_Analyser(object):
         # valid. Instead, compute the necessary information
         # immediately.
 
+        self.project_relative_filename = make_path_project_relative(unit.filename)
+
         # Only process specs
         if not unit.root.p_unit_kind == "unit_specification":
             return
 
         # Find all subprogram units
         subpdecls = unit.root.findall(lal.SubpDecl)
+
+        self.identified_subprograms = {}
+        # Identified bits of code, indexed by sha1
+
         for subpdecl in subpdecls:
             start_line = subpdecl.sloc_range.start.line
             start_column = subpdecl.sloc_range.start.column
             orig_text = subpdecl.text
 
+            s = SubpDecl(start_line, start_column, orig_text)
+            self.identified_subprograms[s.sha1] = s
+
+    def map_elements(self, element_list):
+        """Look at all achord elements in elements_list, and set the
+           "sync_status" field for all Code Elements matching this unit.
+        """
+
+        for el in element_list:
+            if el.project_relative_filename == self.project_relative_filename:
+                if el.sha1 in self.identified_subprograms:
+                    el.sync_status = SYNC_CONNECTED
+                    el.subp = self.identified_subprograms[el.sha1]
+                else:
+                    el.sync_status = SYNC_ORPHANED

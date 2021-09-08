@@ -26,7 +26,7 @@ original_element_count = len(result["elements"])
 
 
 # Add an element
-e = CodeElement("hello.adb", 1, 1, "procedure foo;", "a0a0a0")
+e = CodeElement("hello.adb", 1, "a0a0a0")
 
 save_to_achord(m, [e])
 
