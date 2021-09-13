@@ -98,6 +98,11 @@ class Achord_Integration(Module):
 
         make_interactive(self.create_link, menu="/Achord/Create Link")
 
+        # Register the hooks
+
+        # "on_elements_received": called when elements are received.
+        GPS.Hook.register("achord_elements_received", "simple_hooks")
+
         self.load_project()
 
     def disconnect(self):
@@ -138,17 +143,19 @@ class Achord_Integration(Module):
         self.accumulated_log.append(m)
         self.console.write(m)
 
+    def on_elements_received(self):
+        """Called when elements are received. This runs the corresponding hook."""
+        GPS.Hook("achord_elements_received").run()
+
     def connect_to_achord(self, url):
         """Attempt to connect to the Achord server"""
-        self.connection = ConnectionMonitor(url)
+        self.connection = ConnectionMonitor(url, self.on_elements_received)
         error = self.connection.connect()
         if error:
             self.log(f"Error when connecting: {error}")
         if self.connection.is_alive():
             self.log(f"Connection established on {url}.")
-
-            # TODO: refresh the Elements View here if it's up
-
+            self.connection.download_all_elements()
         else:
             self.log(f"Could not establish connection on {url}.")
 

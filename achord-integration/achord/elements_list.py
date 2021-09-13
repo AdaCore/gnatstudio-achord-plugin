@@ -12,15 +12,14 @@ COL_LABEL = 0
 COL_FOREGROUND = 1
 COL_ELEMENTTYPE = 2
 COL_LOCATION = 3
-COL_SOURCESTATUS = 4
-COL_STATUS = 5
-COL_URI = 6
+COL_URI = 4
 
 
 class ElementListWidget(object):
     def __init__(self, elements_list):
-        """elements_list is a raw representation of elements, 
-           as returned by Achord.
+        """A widget for listing elments.
+
+           elements_list is a list of AchordElements.
         """
 
         self.elements_list = elements_list
@@ -31,8 +30,6 @@ class ElementListWidget(object):
             Gdk.RGBA,  # Foregreound
             str,  # ElementType
             str,  # Location
-            str,  # SourceStatus
-            str,  # Status
             str,  # URI
         )
 
@@ -70,11 +67,9 @@ class ElementListWidget(object):
             self.store[it] = [
                 "",  # Label is unused for now
                 self.default_fg,  # Foregreound
-                e["location"],  # Location
-                e["elementType"],  # ElementType
-                e["sourceStatus"],  # SourceStatus
-                e["status"],  # Status
-                e["uri"],  # URI
+                e.location,
+                e.elementType,
+                e.uri,  # URI
             ]
 
     def preferences_changed(self, default_fg, highlight_fg):

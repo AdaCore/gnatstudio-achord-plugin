@@ -5,6 +5,7 @@ PLUGIN_IDENTIFIER = "gnatstudio"
 global_id = 1
 # Global counter for request IDs
 
+
 class Payload(object):
     """A high-level raw representation of a jsonrpc payload.
        Auto fills the "jsonrpc" field and the "id" field via  """

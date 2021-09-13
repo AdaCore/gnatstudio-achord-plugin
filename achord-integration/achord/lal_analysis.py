@@ -7,13 +7,13 @@ import libadalang as lal
 import re
 import hashlib
 
-from project_support import make_path_project_relative
-from code_elements import SYNC_CONNECTED, SYNC_ORPHANED, SubpDecl
+from achord.project_support import make_path_project_relative
+from achord.code_elements import SYNC_CONNECTED, SYNC_ORPHANED, CodeElement, SubpDecl
 
 whitespaces = re.compile("\s+")
 
 
-class Unit_Analyser(object):
+class UnitAnalyser(object):
     def __init__(self, unit):
         """unit is a Libadalang AnalysisUnit"""
 
@@ -47,6 +47,10 @@ class Unit_Analyser(object):
         """
 
         for el in element_list:
+            # We're only interest in mapping CodeElements
+            if isinstance(el, CodeElement.__class__):
+                continue
+
             if el.project_relative_filename == self.project_relative_filename:
                 if el.sha1 in self.identified_subprograms:
                     el.sync_status = SYNC_CONNECTED

@@ -2,7 +2,7 @@
 
 import GPS
 from achord.elements_list import ElementListWidget
-from achord.achord_connection import get_achord_connection
+from achord.achord_connection import get_achord_elements
 from achord.connection import Payload
 
 from modules import Module
@@ -30,33 +30,5 @@ class Elements_View(Module):
         self.element_list = None
 
     def create_view(self):
-        connection = get_achord_connection()
-        msg = None
-        if connection is None:
-            msg = "No Achord connection available - connect to Achord first."
-        else:
-            if not connection.is_alive():
-                msg = "The connection to Achord is not alive."
-
-        if msg is not None:
-            GPS.Console().write(f"{msg}\n", mode="error")
-            return None
-
-        # TODO: move this to a centralised place
-        get_elements = Payload(
-            "getElements",
-            {
-                "elementSelection": [
-                    {
-                        "pathAttr": "elementType",
-                        "pathMatcher": "glob",
-                        "elements": ["**"],
-                    }
-                ]
-            },
-        )
-        result = connection.blocking_request(get_elements)
-
-        # TODO: add error handling for the contents of result
-        self.element_list = ElementListWidget(result["elements"])
+        self.element_list = ElementListWidget(get_achord_elements())
         return self.element_list.box

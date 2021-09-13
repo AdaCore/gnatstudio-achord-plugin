@@ -1,10 +1,11 @@
 # Handles code elements
 
 import os
-import json
+import re
+import hashlib
 
-from raw_payload import Payload
-from project_support import make_path_project_relative
+from achord.raw_payload import Payload
+from achord.project_support import make_path_project_relative
 
 
 def parse_achord_location(location):
@@ -23,10 +24,13 @@ class SubpDecl(object):
         # Make an invariant hash of the profile spec
 
         # Replace any sequence of whitespaces/tabs/new lines with one space...
-        condensed_text = re.sub(pat, " ", orig_text)
+        self.condensed_text = re.sub("\s+", " ", orig_text)
 
         # ... and produce a hash of that.
-        self.sha1 = hashlib.sha1(condensed_text.encode("utf-8")).hexdigest()
+        self.sha1 = hashlib.sha1(self.condensed_text.encode("utf-8")).hexdigest()
+
+    def __repr__(self):
+        return self.condensed_text
 
 
 class AchordElement(object):
@@ -39,16 +43,18 @@ class AchordElement(object):
         self.sourceStatus = sourceStatus
         self.status = status
         self.uri = uri
-
         self.file, self.line = parse_achord_location(location)
 
     def __repr__(self):
-        return self.uri
+        return f"{self.uri}"
+
 
 # Definitions of the status for elements
-SYNC_UNKNOWN = 0  #   unknown (initial state)
-SYNC_CONNECTED = 1  # connected to source
-SYNC_ORPHANED = 2  #  orphaned: we don't know which source object it belongs to
+SYNC_UNKNOWN = "SYNC_UNKNOWN"  #   unknown (initial state)
+SYNC_CONNECTED = "SYNC_CONNECTED"  # connected to source
+SYNC_ORPHANED = (
+    "SYNC_ORPHANED"
+)  #  orphaned: we don't know which source object it belongs to
 
 
 class CodeElement(AchordElement):
@@ -75,6 +81,9 @@ class CodeElement(AchordElement):
             #                "orig_text": self.orig_text,
             #            }
         }
+
+    def __repr__(self):
+        return f"{self.elementType} {self.uri} {self.sync_status} {self.subp}"
 
 
 def save_to_achord(connection, element_list):

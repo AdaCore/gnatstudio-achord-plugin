@@ -18,7 +18,6 @@ e = CodeElement("hello.adb", 1, "a0a0a0")
 save_to_achord(m, [e])
 
 m.download_all_elements()
-print(m.elements)
 
 # Check that the element is now in the database
 assert(len(m.elements) == original_element_count + 1)

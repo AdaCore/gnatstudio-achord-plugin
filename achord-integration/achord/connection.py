@@ -3,19 +3,21 @@
 import zmq
 import json
 
-from raw_payload import Payload
-from code_elements import AchordElement, CodeElement, parse_achord_location
+from achord.raw_payload import Payload
+from achord.code_elements import AchordElement, CodeElement, parse_achord_location
+from achord.achord_connection import log
 
 
 class ConnectionMonitor(object):
     """Establishes, then monitors, the connection to Achord.
     """
 
-    def __init__(self, requests_url):
+    def __init__(self, requests_url, element_hook=None):
         """requests_url is a string of the form "<protocol>://<host>:port" """
         self.url = requests_url
         self.socket = None
         self.elements = []  # The downloaded elements
+        self.element_hook = element_hook
 
     def connect(self):
         """Attempt a connection. Return a string containing the error if
@@ -24,10 +26,13 @@ class ConnectionMonitor(object):
             self.context = zmq.Context()
             self.socket = self.context.socket(zmq.REQ)
             self.connection = self.socket.connect(self.url)
+            self.poller = zmq.Poller()
+            self.poller.register(self.socket, zmq.POLLIN)
         except Exception as inst:
             self.context = None
             self.socket = None
             self.connection = None
+            self.poller = None
             return f"Exception occurred: {type(inst)} {inst}"
 
     def error(self):
@@ -59,40 +64,54 @@ class ConnectionMonitor(object):
 
     def download_all_elements(self):
         # Cleanup the previously stored elements
+        log("Downloading elements... ", add_lf=False)
         self.elements = []
 
         # Request all elements from Achord
         get_elements = Payload(
             "getElements",
-            {"elementSelection": [
-                                {
-                                  "pathAttr": "elementType",
-                                  "pathMatcher": "glob",
-                                  "elements": [
-                                    "**"
-                                  ]
-                                }]
-            }
+            {
+                "elementSelection": [
+                    {
+                        "pathAttr": "elementType",
+                        "pathMatcher": "glob",
+                        "elements": ["**"],
+                    }
+                ]
+            },
         )
         result = self.blocking_request(get_elements)
+        num_code_elements = 0
         if not "elements" in result:
             # TODO: log a message
             return
         for el in result["elements"]:
-            if el["uri"].startswith("achord://gnatstudio") and el["elementType"] == "code":
+            if (
+                el["uri"].startswith("achord://gnatstudio")
+                and el["elementType"] == "code"
+            ):
                 file, line = parse_achord_location(el["location"])
                 sha1 = el["uri"].split("/")[-1][:-2]
                 self.elements.append(CodeElement(file, line, sha1))
+                num_code_elements += 1
             else:
-                self.elements.append(AchordElement(
-                    el["elementType"],
-                    el["location"],
-                    el["uri"],
-                    el["sourceStatus"],
-                    el["status"]
-                ))
+                self.elements.append(
+                    AchordElement(
+                        el["elementType"],
+                        el["location"],
+                        el["uri"],
+                        el["sourceStatus"],
+                        el["status"],
+                    )
+                )
+        num = len(el)
+        log(
+            f"[{num}] Element(s) received, including {num_code_elements} code element(s)"
+        )
+        if self.element_hook is not None:
+            self.element_hook()
 
-    def blocking_request(self, payload):
+    def blocking_request(self, payload, timeout=1000):
         """Send a request to the socket and block while waiting for the
            response.
            
@@ -103,8 +122,13 @@ class ConnectionMonitor(object):
         """
         raw_bytes = bytes(json.dumps(payload.to_dict()), "utf-8")
         self.socket.send(raw_bytes)
-        raw_response = self.socket.recv()
-        response = json.loads(raw_response)
+        socks = dict(self.poller.poll(timeout))
+        response = {}
+        if socks:
+            if socks.get(self.socket) == zmq.POLLIN:
+                raw_response = self.socket.recv()
+                response = json.loads(raw_response)
+
         if "result" in response:
             return response["result"]
         else:
