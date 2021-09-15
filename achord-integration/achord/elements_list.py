@@ -16,13 +16,13 @@ COL_URI = 4
 
 
 class ElementListWidget(object):
-    def __init__(self, elements_list):
+    def __init__(self):
         """A widget for listing elments.
 
            elements_list is a list of AchordElements.
         """
 
-        self.elements_list = elements_list
+        self.elements_list = []
 
         # This is the tree model
         self.store = Gtk.TreeStore(
@@ -59,6 +59,11 @@ class ElementListWidget(object):
 
         self.box = Gtk.VBox()
         self.box.pack_start(scroll, True, True, 0)
+
+    def refresh(self, elements_list):
+        self.elements_list = elements_list
+        self.store.clear()
+        self.fill_model()
 
     def fill_model(self):
         """Fill the model from the elements dict"""

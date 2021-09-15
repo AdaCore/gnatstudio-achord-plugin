@@ -98,11 +98,6 @@ class Achord_Integration(Module):
 
         make_interactive(self.create_link, menu="/Achord/Create Link")
 
-        # Register the hooks
-
-        # "on_elements_received": called when elements are received.
-        GPS.Hook.register("achord_elements_received", "simple_hooks")
-
         self.load_project()
 
     def disconnect(self):
@@ -181,6 +176,10 @@ class Achord_Integration(Module):
             self.log("Achord not set up for this project.")
             self.log(PROJECT_HELP)
 
+
+# Register the hooks
+# "on_elements_received": called when elements are received.
+GPS.Hook.register("achord_elements_received", "simple_hooks")
 
 # Log the fact that the plugin was loaded
 msg("Achord integration plugin loaded successfully.")

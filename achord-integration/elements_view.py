@@ -17,6 +17,7 @@ class Elements_View(Module):
 
     def __init__(self):
         self.element_list = None
+        GPS.Hook("achord_elements_received").add(self.refresh_view)
 
     def setup(self):
         # Create an "open Libadalang" action
@@ -29,8 +30,13 @@ class Elements_View(Module):
     def on_view_destroy(self):
         self.element_list = None
 
+    def refresh_view(self, hook_name=""):
+        if self.element_list:
+            self.element_list.refresh(get_achord_elements())
+
     def create_view(self):
-        self.element_list = ElementListWidget(get_achord_elements())
+        self.element_list = ElementListWidget()
+        self.refresh_view()
         return self.element_list.box
 
     def save_desktop(self, child):
