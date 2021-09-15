@@ -1,6 +1,7 @@
 package Traffic_Lights is
 
-   type Light_Mode is (Green, Amber, Red, Red_And_Amber);
+   type Light_Mode is (Green, Amber, Red,
+                       Red_And_Amber, Blinking_Amber, Off);
 
    type Light is private;
 

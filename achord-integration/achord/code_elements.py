@@ -29,9 +29,14 @@ class SubpDecl(object):
         # ... and produce a hash of that.
         self.sha1 = hashlib.sha1(self.condensed_text.encode("utf-8")).hexdigest()
 
+        self.connected_element = None
+
     def __repr__(self):
         return self.condensed_text
 
+    def connect_element(self, el):
+        """Inform that the element el is known to be connected to this."""
+        self.connect_element = el
 
 class AchordElement(object):
     """Straight mapping of Achord elements"""

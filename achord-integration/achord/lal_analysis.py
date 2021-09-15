@@ -48,12 +48,13 @@ class UnitAnalyser(object):
 
         for el in element_list:
             # We're only interest in mapping CodeElements
-            if isinstance(el, CodeElement.__class__):
+            if not isinstance(el, CodeElement.__class__):
                 continue
 
             if el.project_relative_filename == self.project_relative_filename:
                 if el.sha1 in self.identified_subprograms:
                     el.sync_status = SYNC_CONNECTED
                     el.subp = self.identified_subprograms[el.sha1]
+                    self.identified_subprograms[el.sha1].connect_element(el)
                 else:
                     el.sync_status = SYNC_ORPHANED

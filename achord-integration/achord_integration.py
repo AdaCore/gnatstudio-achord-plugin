@@ -6,7 +6,8 @@ from gs_utils import make_interactive
 from extensions.private.xml import X
 from modules import Module
 
-from achord.connection import ConnectionMonitor, Payload
+from achord.connection import ConnectionMonitor
+from achord.editor_actions import decorate_editor
 
 # This encodes the XML description of the Achord project attributes
 PROJECT_ATTRIBUTES = [
@@ -160,6 +161,14 @@ class Achord_Integration(Module):
     def project_view_changed(self):
         """Called automatically when the project has changed"""
         self.load_project()
+
+    def file_edited(self, file):
+        buf = GPS.EditorBuffer.get(file)
+        decorate_editor(buf)
+
+    def buffer_edited(self, file):
+        buf = GPS.EditorBuffer.get(file)
+        decorate_editor(buf)
 
     def load_project(self):
         """Called when the project view has changed"""
