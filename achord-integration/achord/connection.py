@@ -27,7 +27,7 @@ class ConnectionMonitor(object):
             self.socket = self.context.socket(zmq.REQ)
             self.connection = self.socket.connect(self.url)
             self.poller = zmq.Poller()
-            self.poller.register(self.socket, zmq.POLLIN)
+            self.poller.register(self.socket)
         except Exception as inst:
             self.context = None
             self.socket = None
@@ -60,6 +60,7 @@ class ConnectionMonitor(object):
 
     def close(self):
         """Close the connection"""
+        self.poller.unregister(self.socket)  # ??? needed?
         self.socket.close()
 
     def download_all_elements(self):
@@ -105,9 +106,7 @@ class ConnectionMonitor(object):
                     )
                 )
         num = len(el)
-        log(
-            f"[{num}] Element(s) received, including {num_code_elements} code element(s)"
-        )
+        log(f"[{num}] Elements received, including {num_code_elements} code element(s)")
         if self.element_hook is not None:
             self.element_hook()
 
@@ -121,7 +120,10 @@ class ConnectionMonitor(object):
            the response is invalid.
         """
         raw_bytes = bytes(json.dumps(payload.to_dict()), "utf-8")
-        self.socket.send(raw_bytes)
+        socks = dict(self.poller.poll(timeout))
+        if socks:
+            if socks.get(self.socket) == zmq.POLLOUT:
+                self.socket.send(raw_bytes)
         socks = dict(self.poller.poll(timeout))
         response = {}
         if socks:

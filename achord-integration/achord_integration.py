@@ -149,6 +149,9 @@ class Achord_Integration(Module):
 
     def connect_to_achord(self, url):
         """Attempt to connect to the Achord server"""
+        if self.connection is not None:
+            self.connection.close()
+
         self.connection = ConnectionMonitor(url, self.on_elements_received)
         error = self.connection.connect()
         if error:
