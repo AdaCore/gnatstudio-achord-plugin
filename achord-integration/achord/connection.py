@@ -106,7 +106,7 @@ class ConnectionMonitor(object):
                     )
                 )
         num = len(el)
-        log(f"[{num}] Elements received, including {num_code_elements} code element(s)")
+        log(f"{num} received ({num_code_elements} code element(s))")
         if self.element_hook is not None:
             self.element_hook()
 

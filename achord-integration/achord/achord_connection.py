@@ -28,6 +28,7 @@ def get_achord_elements():
         if inst.connection is None:
             return []
         return inst.connection.elements
+    return []
 
 
 def log(msg, add_lf=True):

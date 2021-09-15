@@ -32,3 +32,11 @@ class Elements_View(Module):
     def create_view(self):
         self.element_list = ElementListWidget(get_achord_elements())
         return self.element_list.box
+
+    def save_desktop(self, child):
+        """Save the contents of the view in the desktop"""
+        return self.name()
+
+    def load_desktop(self, data):
+        """Restore the contents from the desktop"""
+        return self.get_child()
