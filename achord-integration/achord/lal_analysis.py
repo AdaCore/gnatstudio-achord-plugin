@@ -48,7 +48,7 @@ class UnitAnalyser(object):
 
         for el in element_list:
             # We're only interest in mapping CodeElements
-            if not isinstance(el, CodeElement.__class__):
+            if el.__class__ != CodeElement:
                 continue
 
             if el.project_relative_filename == self.project_relative_filename:

@@ -8,6 +8,9 @@ from achord.raw_payload import Payload
 from achord.project_support import make_path_project_relative
 
 
+CODE_ELEMENT_TYPE = "gnatstudio/ada"
+
+
 def parse_achord_location(location):
     """return (file, line) from an Achord location"""
     file, loc = location.split("#")
@@ -38,6 +41,7 @@ class SubpDecl(object):
         """Inform that the element el is known to be connected to this."""
         self.connect_element = el
 
+
 class AchordElement(object):
     """Straight mapping of Achord elements"""
 
@@ -66,7 +70,7 @@ class CodeElement(AchordElement):
     def __init__(self, file, line, sha1):
         self.project_relative_filename = make_path_project_relative(file)
         super().__init__(
-            "code",
+            CODE_ELEMENT_TYPE,
             f"{self.project_relative_filename}#{line}",
             f"achord://gnatstudio/ada/{sha1}#1",
         )

@@ -2,7 +2,12 @@
 # the association of CodeElements with subprogram nodes.
 
 from achord.lal_analysis import UnitAnalyser
-from achord.code_elements import CodeElement, SYNC_UNKNOWN, SYNC_CONNECTED, SYNC_ORPHANED
+from achord.code_elements import (
+    CodeElement,
+    SYNC_UNKNOWN,
+    SYNC_CONNECTED,
+    SYNC_ORPHANED,
+)
 import libadalang as lal
 
 import sys
@@ -75,18 +80,10 @@ ua2 = UnitAnalyser(unit)
 ua2.map_elements(elements)
 
 # we're expecting one element "orphaned" and one "connected"
-actual = {
-    SYNC_UNKNOWN: 0,
-    SYNC_ORPHANED: 0,
-    SYNC_CONNECTED: 0
-}
+actual = {SYNC_UNKNOWN: 0, SYNC_ORPHANED: 0, SYNC_CONNECTED: 0}
 for e in elements:
     actual[e.sync_status] += 1
 
-expected = {
-    SYNC_UNKNOWN: 0,
-    SYNC_ORPHANED: 1,
-    SYNC_CONNECTED: 1
-}
-assert(actual == expected)
+expected = {SYNC_UNKNOWN: 0, SYNC_ORPHANED: 1, SYNC_CONNECTED: 1}
+assert actual == expected
 print("SUCCESS")

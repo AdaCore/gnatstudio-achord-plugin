@@ -4,8 +4,61 @@ import zmq
 import json
 
 from achord.raw_payload import Payload
-from achord.code_elements import AchordElement, CodeElement, parse_achord_location
+from achord.code_elements import (
+    AchordElement,
+    CodeElement,
+    parse_achord_location,
+    CODE_ELEMENT_TYPE,
+)
 from achord.achord_connection import log
+
+
+class LinkType(object):
+    """Represents an achord link type"""
+
+    def __init__(self, coTypeName, sources, targets):
+        """sources and targets are lists of description_dicts of the form
+           { 'elements': [ 'reqif/SatisfactionArgument'],
+             'pathAttr': 'elementType',
+             'pathMatcher': 'glob'
+           }
+        """
+        self.coTypeName = coTypeName
+        self.sources = sources
+        self.targets = targets
+
+    def matches_dict(self, type, description_dict):
+        """return True iff type matches the description dict"""
+        # For now, match simple strings, do not take into account pathMatcher
+        # and pathAttr.
+        # TODO: support the above.
+        if type in description_dict["elements"]:
+            return True
+
+    def possible_sources_for_element(self, element_list, target_element):
+        """Return a list of elements from element_list that are a valid
+           source for target_element
+        """
+
+        # See if the target matches
+        match_found = False
+        for t in self.targets:
+            if self.matches_dict(target_element.elementType, t):
+                match_found = True
+                break
+
+        if not match_found:
+            # The target_element is not a match for this
+            return []
+
+        # If we reached here, the target type matches: filter the element sources
+        results = []
+        for el in element_list:
+            for s in self.sources:
+                if self.matches_dict(el.elementType, s):
+                    results.append(el)
+                    break
+        return results
 
 
 class ConnectionMonitor(object):
@@ -17,6 +70,7 @@ class ConnectionMonitor(object):
         self.url = requests_url
         self.socket = None
         self.elements = []  # The downloaded elements
+        self.link_types = []  # The downloaded LinkTypes
         self.element_hook = element_hook
 
     def connect(self):
@@ -63,6 +117,21 @@ class ConnectionMonitor(object):
         self.poller.unregister(self.socket)  # ??? needed?
         self.socket.close()
 
+    def download_all_link_types(self):
+        # Download all the link types
+        self.link_types = []
+        log("Downloading link types... ", add_lf=False)
+        get_link_types = Payload("getLinkTypes", {})
+        result = self.blocking_request(get_link_types)
+        if not "linkMetaModel" in result:
+            log("invalid result received!")
+        for entry in result["linkMetaModel"]["directedLinkTypes"]:
+            self.link_types.append(
+                LinkType(entry["coTypeName"], entry["source"], entry["target"])
+            )
+
+        # TODO: support selfLinkTypes?
+
     def download_all_elements(self):
         # Cleanup the previously stored elements
         log("Downloading elements... ", add_lf=False)
@@ -89,7 +158,7 @@ class ConnectionMonitor(object):
         for el in result["elements"]:
             if (
                 el["uri"].startswith("achord://gnatstudio")
-                and el["elementType"] == "code"
+                and el["elementType"] == CODE_ELEMENT_TYPE
             ):
                 file, line = parse_achord_location(el["location"])
                 sha1 = el["uri"].split("/")[-1][:-2]
