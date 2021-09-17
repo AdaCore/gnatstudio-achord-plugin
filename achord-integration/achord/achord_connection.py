@@ -34,6 +34,6 @@ def get_achord_elements():
 def log(msg, add_lf=True):
     inst = __get_instance()
     if inst is None:
-        print(msg + ("\n" if add_lf else ""))
+        print(msg, end="\n" if add_lf else "")
     else:
         inst.log(msg, add_lf)

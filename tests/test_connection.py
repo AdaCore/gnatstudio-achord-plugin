@@ -37,5 +37,6 @@ get_elements = Payload(
 result = m.blocking_request(get_elements)
 assert len(result["elements"]) == 2
 m.close()
+
 assert not m.is_alive()
 print("SUCCESS")

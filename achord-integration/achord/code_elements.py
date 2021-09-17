@@ -53,9 +53,24 @@ class AchordElement(object):
         self.status = status
         self.uri = uri
         self.file, self.line = parse_achord_location(location)
+        self.links_from = set()  # tuples of the form(linkType, element)
+        self.links_to = set()  # tuples of the form(linkType, element)
 
     def __repr__(self):
-        return f"{self.uri}"
+        result = [f"{self.uri}:"]
+        if len(self.links_from) + len(self.links_to) == 0:
+            result.append("    no links")
+        else:
+            if len(self.links_from) != 0:
+                result.append("    Linked FROM:")
+                for linkType, element in self.links_from:
+                    result.append(f"        {linkType}: {element.uri}")
+
+            if len(self.links_to) != 0:
+                result.append("    Links TO:")
+                for linkType, element in self.links_to:
+                    result.append(f"        {linkType}: {element.uri}")
+        return "\n".join(result)
 
 
 # Definitions of the status for elements

@@ -1,5 +1,6 @@
 """Handles the connection to the Achord server"""
 
+from os import link
 import zmq
 import json
 
@@ -61,6 +62,36 @@ class LinkType(object):
         return results
 
 
+def link_elements(from_element, to_element, linkType):
+    """Create a link between two elements. The link is
+       recorded in each element.
+    """
+    from_element.links_to.add((linkType, to_element))
+    to_element.links_from.add((linkType, from_element))
+
+
+def process_links(all_elements, link_list):
+    """Process the response from getElementLinks and set the
+       connection data in all elements
+    """
+    # For perf reasons: create an index of all elements from their uri
+    els = {e.uri: e for e in all_elements}
+
+    # Process the response
+    for entry in link_list:
+        element = els[entry["element"]]
+        for link_from in entry["links"]["linksFrom"]:
+            for from_elements_uri in link_from["elements"]:
+                from_element = els[from_elements_uri]
+                to_element = element
+                link_elements(from_element, to_element, link_from["linkType"])
+        for link_to in entry["links"]["linksTo"]:
+            for to_element_uri in link_to["elements"]:
+                from_element = element
+                to_element = els[to_element_uri]
+                link_elements(from_element, to_element, link_to["linkType"])
+
+
 class ConnectionMonitor(object):
     """Establishes, then monitors, the connection to Achord.
     """
@@ -117,6 +148,34 @@ class ConnectionMonitor(object):
         self.poller.unregister(self.socket)  # ??? needed?
         self.socket.close()
 
+    def download_achord_db(self):
+        """Download/redownload the elements, link types, and links from Achord"""
+        self.download_all_elements()
+        self.download_all_link_types()
+        self.create_all_links()
+
+    def create_all_links(self):
+        """Download all links and link all elements.
+           Should be called after download_all_elements.
+        """
+        log("Downloading links... ", add_lf=False)
+        get_links = Payload(
+            "getElementLinks",
+            {
+                "elementSelection": [
+                    {
+                        "pathAttr": "elementType",
+                        "pathMatcher": "glob",
+                        "elements": ["**"],
+                    }
+                ]
+            },
+        )
+        result = self.blocking_request(get_links)
+        num = len(result["linkedElements"])
+        log(f"{num} received")
+        process_links(self.elements, result["linkedElements"])
+
     def download_all_link_types(self):
         # Download all the link types
         self.link_types = []
@@ -129,6 +188,8 @@ class ConnectionMonitor(object):
             self.link_types.append(
                 LinkType(entry["coTypeName"], entry["source"], entry["target"])
             )
+        num = len(result["linkMetaModel"]["directedLinkTypes"])
+        log(f"{num} received")
 
         # TODO: support selfLinkTypes?
 

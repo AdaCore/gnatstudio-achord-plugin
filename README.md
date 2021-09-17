@@ -32,3 +32,5 @@ There are three ways to make the plug-in available to GNAT Studio - choose one:
    * create_code_element
    * open_elements
    * synchronise
+ * element data
+   * support self links?

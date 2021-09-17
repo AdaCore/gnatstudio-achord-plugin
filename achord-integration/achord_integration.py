@@ -114,7 +114,7 @@ class Achord_Integration(Module):
         GPS.Console().write("NOT IMPLEMENTED\n")
 
     def create_link(self):
-        """Open the elements view"""
+        """Create a link from an Achord Element to a Code Element"""
         GPS.Console().write("NOT IMPLEMENTED\n")
 
     def create_code_element(self):
@@ -154,7 +154,7 @@ class Achord_Integration(Module):
             self.log(f"Error when connecting: {error}")
         if self.connection.is_alive():
             self.log(f"Connection established on {url}.")
-            self.connection.download_all_elements()
+            self.connection.download_achord_db()
         else:
             self.log(f"Could not establish connection on {url}.")
 

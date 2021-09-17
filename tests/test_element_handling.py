@@ -8,7 +8,7 @@ assert m.is_alive()
 
 
 # Check retrieving the list of elements
-m.download_all_elements()
+m.download_achord_db()
 
 original_element_count = len(m.elements)
 
@@ -17,7 +17,7 @@ e = CodeElement("hello.adb", 1, "a0a0a0")
 
 save_to_achord(m, [e])
 
-m.download_all_elements()
+m.download_achord_db()
 
 # Check that the element is now in the database
 assert len(m.elements) == original_element_count + 1
@@ -33,7 +33,14 @@ for link_type in m.link_types:
         (link_type.coTypeName, link_type.possible_sources_for_element(m.elements, e))
     )
 
-assert matches == [("SatisfiedBy", []), ("ImplementedBy", [m.elements[2]])]
+assert matches == [
+    ("SatisfiedBy", []),
+    ("ImplementedBy", [e for e in m.elements if e.elementType == "reqif/Requirement"]),
+]
 m.close()
+
+for e in m.elements:
+    print(e)
+
 assert not m.is_alive()
 print("SUCCESS")

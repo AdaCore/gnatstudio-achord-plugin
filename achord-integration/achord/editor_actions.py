@@ -15,7 +15,7 @@ associated_entity_style.set_background("#00ff00")
 CATEGORY = "Achord"
 
 
-def bla(message):
+def open_element_info_dialog(message):
     GPS.Console().write(f"{message.subp}\n")
 
 
@@ -55,6 +55,6 @@ def decorate_editor(buffer):
         if subp.connected_element is None:
             m.set_style(unassociated_entity_style)
             m.subp = subp
-            m.set_subprogram(connect_element, "gps-compile-symbolic", "")
+            m.set_subprogram(open_element_info_dialog, "gps-compile-symbolic", "")
         else:
             m.set_style(associated_entity_style)
