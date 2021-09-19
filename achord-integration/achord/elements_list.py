@@ -5,8 +5,6 @@ import gi
 gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk, Gdk
 
-import GPS
-
 # The columns in the model
 COL_LABEL = 0
 COL_FOREGROUND = 1
@@ -77,6 +75,17 @@ class ElementListWidget(object):
                 e.uri,  # URI
             ]
 
+    def get_selected_uri(self):
+        """Return the URI of the selected element, None if there isn't one"""
+        sel = self.view.get_selection()
+        rows = sel.get_selected_rows()
+        (model, pathlist) = sel.get_selected_rows()
+        if pathlist:
+            tree_iter = model.get_iter(pathlist[0])
+            return model.get_value(tree_iter, COL_URI)
+
+        return None
+
     def preferences_changed(self, default_fg, highlight_fg):
         """Apply the contents of the preferences"""
         prev = (self.default_fg, self.highlight_fg)
@@ -86,3 +95,37 @@ class ElementListWidget(object):
             # The colours have changed, re-fill the model
             self.store.clear()
             self.fill_model()
+
+
+class ElementSelectionDialog(object):
+    def __init__(self, elements):
+        self.elements = elements
+        self.dialog = Gtk.Dialog()
+        self.dialog.set_title("Choose an Element")
+        self.elementlist = ElementListWidget()
+        self.elementlist.refresh(self.elements)
+
+        self.dialog.get_content_area().add(self.elementlist.box)
+        self.dialog.set_default_size(400, 200)
+
+        self.dialog.add_buttons(
+            Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL, Gtk.STOCK_OK, Gtk.ResponseType.OK
+        )
+
+    def run(self):
+        self.dialog.show_all()
+        response = self.dialog.run()
+        if response == Gtk.ResponseType.CANCEL:
+            self.dialog.destroy()
+            return None
+
+        uri = self.elementlist.get_selected_uri()
+        self.dialog.destroy()
+        if uri is None:
+            return None
+
+        for x in self.elements:
+            if x.uri == uri:
+                return x
+
+        return None
