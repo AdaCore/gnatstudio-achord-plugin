@@ -1,28 +1,22 @@
 """Defines a dialog saying what to do with a given element"""
 
-from gi.repository import Gtk, GLib
+from os import link
+from gi.repository import Gtk
+from achord.achord_connection import get_achord_connection, log
+from achord.code_elements import CodeElement, create_link, save_to_achord
 from achord.elements_list import ElementSelectionDialog
 from gi.repository.GLib import markup_escape_text
 
-# Operations
-OP_NOTHING = 0  # Do nothing
-OP_CREATE_CE_AND_CONNECT = 1  # Create a CodeElement and connect the given element
-OP_RECONNECT_CE = 2  # Reconnect the given CodeElement
-
 
 class ElementInfoDialog(object):
-    def __init__(self, subp, elements):
+    def __init__(self):
         """subp is a SubpDecl, elements a list of AchordElement"""
-        self.subp = subp
-        self.elements = elements
+        self.subp = None
+        self.elements = None
+        self.link_types = None
         self.dialog = Gtk.Dialog()
 
-        self.dialog.add_buttons(
-            Gtk.STOCK_CANCEL,
-            Gtk.ResponseType.CANCEL,
-            Gtk.STOCK_APPLY,
-            Gtk.ResponseType.APPLY,
-        )
+        self.dialog.add_buttons(Gtk.STOCK_CLOSE, Gtk.ResponseType.CLOSE)
 
         vbox = Gtk.VBox()
         hbox = Gtk.HBox()
@@ -48,8 +42,6 @@ class ElementInfoDialog(object):
         self.disconnect_button = Gtk.Button("Disconnect")
         action_buttons.add(self.disconnect_button)
 
-        self.refresh()
-
     def on_connect_clicked(self, button, flag):
         """Called when the "Add a trace..." button is clicked"""
         # Present a selection dialog
@@ -60,8 +52,37 @@ class ElementInfoDialog(object):
         # An element was selected - we need to do two things:
         # create the Code Element for this subprogram, then link it to the
         # selected element.
+        code_element = CodeElement(self.subp.file, self.subp.line, self.subp.sha1)
+        connection = get_achord_connection()
+        if connection is None:
+            log("Achord connection not available")
+            return
+        save_to_achord(connection, [code_element])
 
-    def refresh(self):
+        # Find out which link types match
+        matching_link_type = None
+        for l in self.link_types:
+            if selected_element in l.possible_sources_for_element(
+                self.elements, code_element
+            ):
+                matching_link_type = l.coTypeName
+                break
+            # TODO: handle the case where multiple link types match
+
+        if matching_link_type is None:
+            log(
+                f"Couldn't find a link type from {selected_element.elementType} to {code_element.elementType}"
+            )
+        else:
+            create_link(connection, selected_element, code_element, matching_link_type)
+        self.subp.connected_element = code_element
+        connection.download_achord_db()
+        self.refresh(self.subp, connection.elements, connection.link_types)
+
+    def refresh(self, subp, elements, link_types):
+        self.subp = subp
+        self.elements = elements
+        self.link_types = link_types
         self.subp_label.set_markup(
             '<b>Entity:</b> <span face="monospace">'
             + markup_escape_text(self.subp.orig_text)

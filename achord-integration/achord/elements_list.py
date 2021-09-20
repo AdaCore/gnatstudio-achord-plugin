@@ -98,6 +98,8 @@ class ElementListWidget(object):
 
 
 class ElementSelectionDialog(object):
+    """A dialog showing a list of elements, allowing the user to choose one."""
+
     def __init__(self, elements):
         self.elements = elements
         self.dialog = Gtk.Dialog()
@@ -105,7 +107,7 @@ class ElementSelectionDialog(object):
         self.elementlist = ElementListWidget()
         self.elementlist.refresh(self.elements)
 
-        self.dialog.get_content_area().add(self.elementlist.box)
+        self.dialog.get_content_area().pack_start(self.elementlist.box, True, True, 3)
         self.dialog.set_default_size(400, 200)
 
         self.dialog.add_buttons(
@@ -113,6 +115,7 @@ class ElementSelectionDialog(object):
         )
 
     def run(self):
+        """Launch the dialog and return the selected element if any, None otherwise."""
         self.dialog.show_all()
         response = self.dialog.run()
         if response == Gtk.ResponseType.CANCEL:

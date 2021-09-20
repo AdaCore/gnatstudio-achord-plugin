@@ -15,10 +15,23 @@ def __get_instance():
     return None
 
 
+testsuite_connection = None
+
+
+def testsuite_set_achord_connection(m):
+    """Used for the testsuite: set a connection"""
+    global testsuite_connection
+    testsuite_connection = m
+
+
 def get_achord_connection():
     inst = __get_instance()
     if inst is not None:
         return inst.connection
+
+    if testsuite_connection is not None:
+        return testsuite_connection
+
     return None
 
 

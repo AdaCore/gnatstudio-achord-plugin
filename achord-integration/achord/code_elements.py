@@ -18,8 +18,9 @@ def parse_achord_location(location):
 
 
 class SubpDecl(object):
-    def __init__(self, line, column, orig_text):
+    def __init__(self, file, line, column, orig_text):
         """A subprogram decl. orig_text is the full text of the profile, encoded in utf-8"""
+        self.file = file
         self.line = line
         self.column = column
         self.orig_text = orig_text
@@ -72,6 +73,18 @@ class AchordElement(object):
                     result.append(f"        {linkType}: {element.uri}")
         return "\n".join(result)
 
+    def to_achord_save_payload(self):
+        return {
+            "uri": self.uri,
+            "content": "1",
+            "elementType": self.elementType,
+            "location": f"{os.path.basename(self.file)}#{self.line}",
+            # TODO: add information?
+            #            "info": {
+            #                "orig_text": self.orig_text,
+            #            }
+        }
+
 
 # Definitions of the status for elements
 SYNC_UNKNOWN = "SYNC_UNKNOWN"  #   unknown (initial state)
@@ -94,18 +107,6 @@ class CodeElement(AchordElement):
         self.sync_status = SYNC_UNKNOWN
         self.subp = None
 
-    def to_achord_save_payload(self):
-        return {
-            "uri": self.uri,
-            "content": "1",
-            "elementType": self.elementType,
-            "location": f"{os.path.basename(self.file)}#{self.line}",
-            # TODO: add information?
-            #            "info": {
-            #                "orig_text": self.orig_text,
-            #            }
-        }
-
     def __repr__(self):
         return f"{self.elementType} {self.uri} {self.sync_status} {self.subp}"
 
@@ -117,5 +118,15 @@ def save_to_achord(connection, element_list):
     )
 
     result = connection.blocking_request(payload)
+    # TODO: check the result
 
+
+def create_link(connection, source_element, target_element, linkType):
+    payload = Payload(
+        "createLink",
+        {"source": source_element.uri, "target": target_element.uri, "type": linkType},
+    )
+    result = connection.blocking_request(payload)
+    source_element.links_to.add((linkType, target_element))
+    target_element.links_from.add((linkType, source_element))
     # TODO: check the result

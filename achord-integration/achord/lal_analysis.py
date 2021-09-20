@@ -38,7 +38,9 @@ class UnitAnalyser(object):
             start_column = subpdecl.sloc_range.start.column
             orig_text = subpdecl.text
 
-            s = SubpDecl(start_line, start_column, orig_text)
+            s = SubpDecl(
+                self.project_relative_filename, start_line, start_column, orig_text
+            )
             self.identified_subprograms[s.sha1] = s
 
     def map_elements(self, element_list):
