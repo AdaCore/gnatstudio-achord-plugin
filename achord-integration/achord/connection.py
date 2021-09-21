@@ -13,17 +13,21 @@ from achord.code_elements import (
 )
 from achord.achord_connection import log
 
+LOG_REQUESTS = True
+# Debug flag
+
 
 class LinkType(object):
     """Represents an achord link type"""
 
-    def __init__(self, coTypeName, sources, targets):
+    def __init__(self, typeName, coTypeName, sources, targets):
         """sources and targets are lists of description_dicts of the form
            { 'elements': [ 'reqif/SatisfactionArgument'],
              'pathAttr': 'elementType',
              'pathMatcher': 'glob'
            }
         """
+        self.typeName = typeName
         self.coTypeName = coTypeName
         self.sources = sources
         self.targets = targets
@@ -153,6 +157,8 @@ class ConnectionMonitor(object):
         self.download_all_elements()
         self.download_all_link_types()
         self.create_all_links()
+        if self.element_hook is not None:
+            self.element_hook()
 
     def create_all_links(self):
         """Download all links and link all elements.
@@ -186,7 +192,12 @@ class ConnectionMonitor(object):
             log("invalid result received!")
         for entry in result["linkMetaModel"]["directedLinkTypes"]:
             self.link_types.append(
-                LinkType(entry["coTypeName"], entry["source"], entry["target"])
+                LinkType(
+                    entry["typeName"],
+                    entry["coTypeName"],
+                    entry["source"],
+                    entry["target"],
+                )
             )
         num = len(result["linkMetaModel"]["directedLinkTypes"])
         log(f"{num} received")
@@ -217,6 +228,8 @@ class ConnectionMonitor(object):
             # TODO: log a message
             return
         for el in result["elements"]:
+            if "status" in el and el["status"] == "Deleted":
+                continue
             if (
                 el["uri"].startswith("achord://gnatstudio")
                 and el["elementType"] == CODE_ELEMENT_TYPE
@@ -237,8 +250,6 @@ class ConnectionMonitor(object):
                 )
         num = len(el)
         log(f"{num} received ({num_code_elements} code element(s))")
-        if self.element_hook is not None:
-            self.element_hook()
 
     def blocking_request(self, payload, timeout=1000):
         """Send a request to the socket and block while waiting for the
@@ -249,6 +260,9 @@ class ConnectionMonitor(object):
            returns a json dict of the corresponding response - and False if
            the response is invalid.
         """
+        if LOG_REQUESTS:
+            log(str(payload.to_dict()))
+
         raw_bytes = bytes(json.dumps(payload.to_dict()), "utf-8")
         socks = dict(self.poller.poll(timeout))
         if socks:
@@ -260,6 +274,9 @@ class ConnectionMonitor(object):
             if socks.get(self.socket) == zmq.POLLIN:
                 raw_response = self.socket.recv()
                 response = json.loads(raw_response)
+
+        if LOG_REQUESTS:
+            log("    => " + str(response))
 
         if "result" in response:
             return response["result"]

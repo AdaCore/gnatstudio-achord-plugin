@@ -35,6 +35,15 @@ def get_achord_connection():
     return None
 
 
+def get_achord_link_types():
+    inst = __get_instance()
+    if inst is not None:
+        if inst.connection is None:
+            return []
+        return inst.connection.link_types
+    return []
+
+
 def get_achord_elements():
     inst = __get_instance()
     if inst is not None:

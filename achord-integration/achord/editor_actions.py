@@ -1,10 +1,11 @@
 """Contains the editor actions"""
 
 import GPS
+from achord.element_info_dialog import ElementInfoDialog
 
 from achord.lal_analysis import UnitAnalyser
 from achord.project_support import make_path_project_relative
-from achord.achord_connection import get_achord_elements
+from achord.achord_connection import get_achord_elements, get_achord_link_types
 
 # TODO: connect styles to preferences
 unassociated_entity_style = GPS.Style("unassociated_entity")
@@ -16,7 +17,9 @@ CATEGORY = "Achord"
 
 
 def open_element_info_dialog(message):
-    GPS.Console().write(f"{message.subp}\n")
+    d = ElementInfoDialog()
+    d.refresh(message.subp, get_achord_elements(), get_achord_link_types())
+    d.run()
 
 
 def decorate_editor(buffer):
@@ -58,3 +61,5 @@ def decorate_editor(buffer):
             m.set_subprogram(open_element_info_dialog, "gps-compile-symbolic", "")
         else:
             m.set_style(associated_entity_style)
+            m.subp = subp
+            m.set_subprogram(open_element_info_dialog, "gps-compile-symbolic", "")

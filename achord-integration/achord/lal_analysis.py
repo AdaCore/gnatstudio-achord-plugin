@@ -9,6 +9,7 @@ import hashlib
 
 from achord.project_support import make_path_project_relative
 from achord.code_elements import SYNC_CONNECTED, SYNC_ORPHANED, CodeElement, SubpDecl
+from achord.achord_connection import log
 
 whitespaces = re.compile("\s+")
 

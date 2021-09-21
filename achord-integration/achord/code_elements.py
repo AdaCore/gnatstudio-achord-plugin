@@ -40,7 +40,7 @@ class SubpDecl(object):
 
     def connect_element(self, el):
         """Inform that the element el is known to be connected to this."""
-        self.connect_element = el
+        self.connected_element = el
 
 
 class AchordElement(object):
@@ -121,10 +121,60 @@ def save_to_achord(connection, element_list):
     # TODO: check the result
 
 
+def delete_link(connection, source_element, target_element, linkType):
+    payload = Payload(
+        "deleteLinks",
+        {
+            "linkSelection": [
+                {
+                    "links": [
+                        {
+                            "source": {
+                                "pathAttr": "uri",
+                                "pathMatcher": "glob",
+                                "elements": [source_element.uri],
+                            },
+                            "target": {
+                                "pathAttr": "uri",
+                                "pathMatcher": "glob",
+                                "elements": [target_element.uri],
+                            },
+                        }
+                    ]
+                }
+            ]
+        },
+    )
+    result = connection.blocking_request(payload)
+    source_element.links_to.remove((linkType, target_element))
+    target_element.links_from.remove((linkType, source_element))
+    # TODO: check the result
+
+
+def delete_element(connection, element):
+    payload = Payload(
+        "delete",
+        {
+            "elementSelection": [
+                {"pathAttr": "uri", "pathMatcher": "glob", "elements": [element.uri]}
+            ]
+        },
+    )
+    result = connection.blocking_request(payload)
+
+
 def create_link(connection, source_element, target_element, linkType):
     payload = Payload(
-        "createLink",
-        {"source": source_element.uri, "target": target_element.uri, "type": linkType},
+        "createLinks",
+        {
+            "links": [
+                {
+                    "source": source_element.uri,
+                    "target": target_element.uri,
+                    "link": linkType,
+                }
+            ]
+        },
     )
     result = connection.blocking_request(payload)
     source_element.links_to.add((linkType, target_element))

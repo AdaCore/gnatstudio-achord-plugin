@@ -10,7 +10,6 @@ package Traffic_Lights is
    function Get_Mode (L : Light) return Light_Mode;
 
 private
-
    type Light is record
       Mode : Light_Mode := Red;
    end record;

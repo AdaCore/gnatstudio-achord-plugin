@@ -10,10 +10,10 @@ m.connect()
 testsuite_set_achord_connection(m)
 assert m.is_alive()
 
-req = AchordElement(
-    "reqif/Requirement", "req_location#123", "achord://gnatstudio/requirement#1"
-)
-save_to_achord(m, [req])
+# req = AchordElement(
+#    "reqif/Requirement", "req_location#123", "achord://gnatstudio/requirement#1"
+# )
+# save_to_achord(m, [req])
 
 m.download_achord_db()
 
