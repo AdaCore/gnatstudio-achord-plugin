@@ -102,8 +102,9 @@ class Achord_Integration(Module):
         self.load_project()
 
     def disconnect(self):
-        """Open the elements view"""
-        GPS.Console().write("NOT IMPLEMENTED\n")
+        """Close the connection to Achord"""
+        if self.connection is not None:
+            self.connection.close()
 
     def annotate_editor(self):
         """Open the elements view"""
