@@ -10,7 +10,7 @@ from gs_utils import make_interactive
 
 
 class Elements_View(Module):
-    """ A GS module, providing the Achord Elements View"""
+    """A GS module, providing the Achord Elements View"""
 
     view_title = "Achord Elements"
     mdi_position = GPS.MDI.POSITION_RIGHT

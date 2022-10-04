@@ -46,7 +46,7 @@ class UnitAnalyser(object):
 
     def map_elements(self, element_list):
         """Look at all achord elements in elements_list, and set the
-           "sync_status" field for all Code Elements matching this unit.
+        "sync_status" field for all Code Elements matching this unit.
         """
 
         for el in element_list:

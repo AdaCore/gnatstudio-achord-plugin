@@ -17,7 +17,7 @@ class ElementListWidget(object):
     def __init__(self):
         """A widget for listing elments.
 
-           elements_list is a list of AchordElements.
+        elements_list is a list of AchordElements.
         """
 
         self.elements_list = []

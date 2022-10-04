@@ -22,10 +22,10 @@ class LinkType(object):
 
     def __init__(self, typeName, coTypeName, sources, targets):
         """sources and targets are lists of description_dicts of the form
-           { 'elements': [ 'reqif/SatisfactionArgument'],
-             'pathAttr': 'elementType',
-             'pathMatcher': 'glob'
-           }
+        { 'elements': [ 'reqif/SatisfactionArgument'],
+          'pathAttr': 'elementType',
+          'pathMatcher': 'glob'
+        }
         """
         self.typeName = typeName
         self.coTypeName = coTypeName
@@ -42,7 +42,7 @@ class LinkType(object):
 
     def possible_sources_for_element(self, element_list, target_element):
         """Return a list of elements from element_list that are a valid
-           source for target_element
+        source for target_element
         """
 
         # See if the target matches
@@ -68,7 +68,7 @@ class LinkType(object):
 
 def link_elements(from_element, to_element, linkType):
     """Create a link between two elements. The link is
-       recorded in each element.
+    recorded in each element.
     """
     from_element.links_to.add((linkType, to_element))
     to_element.links_from.add((linkType, from_element))
@@ -76,7 +76,7 @@ def link_elements(from_element, to_element, linkType):
 
 def process_links(all_elements, link_list):
     """Process the response from getElementLinks and set the
-       connection data in all elements
+    connection data in all elements
     """
     # For perf reasons: create an index of all elements from their uri
     els = {e.uri: e for e in all_elements}
@@ -97,8 +97,7 @@ def process_links(all_elements, link_list):
 
 
 class ConnectionMonitor(object):
-    """Establishes, then monitors, the connection to Achord.
-    """
+    """Establishes, then monitors, the connection to Achord."""
 
     def __init__(self, requests_url, element_hook=None):
         """requests_url is a string of the form "<protocol>://<host>:port" """
@@ -110,7 +109,7 @@ class ConnectionMonitor(object):
 
     def connect(self):
         """Attempt a connection. Return a string containing the error if
-           there was one, None otherwise"""
+        there was one, None otherwise"""
         try:
             self.context = zmq.Context()
             self.socket = self.context.socket(zmq.REQ)
@@ -162,7 +161,7 @@ class ConnectionMonitor(object):
 
     def create_all_links(self):
         """Download all links and link all elements.
-           Should be called after download_all_elements.
+        Should be called after download_all_elements.
         """
         log("Downloading links... ", add_lf=False)
         get_links = Payload(
@@ -253,12 +252,12 @@ class ConnectionMonitor(object):
 
     def blocking_request(self, payload, timeout=1000):
         """Send a request to the socket and block while waiting for the
-           response.
-           
-           payload is a Payload object.
+        response.
 
-           returns a json dict of the corresponding response - and False if
-           the response is invalid.
+        payload is a Payload object.
+
+        returns a json dict of the corresponding response - and False if
+        the response is invalid.
         """
         if LOG_REQUESTS:
             log(str(payload.to_dict()))
