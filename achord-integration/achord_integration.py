@@ -107,7 +107,6 @@ class Achord_Integration(Module):
             self.connection.close()
 
     def annotate_editor(self):
-        """Open the elements view"""
         GPS.Console().write("NOT IMPLEMENTED\n")
 
     def remove_editor_annotations(self):
@@ -121,7 +120,6 @@ class Achord_Integration(Module):
         GPS.Console().write("NOT IMPLEMENTED\n")
 
     def create_code_element(self):
-        """Open the elements view"""
         GPS.Console().write("NOT IMPLEMENTED\n")
 
     def open_elements(self):
@@ -129,7 +127,6 @@ class Achord_Integration(Module):
         GPS.execute_action("open Achord Elements")
 
     def synchronise(self):
-        """Open the elements view"""
         GPS.Console().write("NOT IMPLEMENTED\n")
 
     def open_console(self):
