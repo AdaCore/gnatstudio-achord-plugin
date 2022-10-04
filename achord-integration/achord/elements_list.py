@@ -3,7 +3,7 @@
 import gi
 
 gi.require_version("Gtk", "3.0")
-from gi.repository import Gtk, Gdk
+from gi.repository import Gtk, Gdk, Pango
 
 # The columns in the model
 COL_LABEL = 0
@@ -11,6 +11,8 @@ COL_FOREGROUND = 1
 COL_ELEMENTTYPE = 2
 COL_LOCATION = 3
 COL_URI = 4
+COL_SOURCESTATUS = 5
+COL_STATUS = 6
 
 
 class ElementListWidget(object):
@@ -29,20 +31,44 @@ class ElementListWidget(object):
             str,  # ElementType
             str,  # Location
             str,  # URI
+            str,  # Source Status
+            str,  # Status
         )
 
         # The tree view
         self.view = Gtk.TreeView(self.store)
         self.view.set_name("elementlist_view")  # For debugging/testing
 
-        # For now, render only the URI of the element
-        self.uri_col = Gtk.TreeViewColumn("URI")
-        cell = Gtk.CellRendererText()
-        self.uri_col.pack_start(cell, True)
-        self.uri_col.add_attribute(cell, "text", COL_URI)
-        self.uri_col.add_attribute(cell, "foreground-rgba", COL_FOREGROUND)
+        def add_col(title, id):
+            """Add a Gtk.TreeViewColumn for the given title and column id.
+            return the col and the cell renderer."""
+            col = Gtk.TreeViewColumn(title)
+            cell = Gtk.CellRendererText()
+            col.pack_start(cell, True)
+            col.add_attribute(cell, "text", id)
+            col.add_attribute(cell, "foreground-rgba", COL_FOREGROUND)
+            col.set_sort_column_id(id)
+            self.view.append_column(col)
+            return col, cell
 
-        self.view.append_column(self.uri_col)
+        # The URI
+        col, cell = add_col("URI", COL_URI)
+        cell.set_property("ellipsize", Pango.EllipsizeMode.END)
+        col.set_sizing(Gtk.TreeViewColumnSizing.AUTOSIZE)
+        col.set_expand(True)
+        col.set_resizable(True)
+
+        # The type
+        add_col("Type", COL_ELEMENTTYPE)
+
+        # The location
+        add_col("Location", COL_LOCATION)
+
+        # The source status
+        add_col("Source Status", COL_SOURCESTATUS)
+
+        # The status
+        add_col("Status", COL_STATUS)
 
         self.default_fg = Gdk.RGBA(0, 0, 0)
         self.highlight_fg = Gdk.RGBA(255, 0, 0)
@@ -70,9 +96,11 @@ class ElementListWidget(object):
             self.store[it] = [
                 "",  # Label is unused for now
                 self.default_fg,  # Foregreound
-                e.location,
                 e.elementType,
+                e.location,
                 e.uri,  # URI
+                e.sourceStatus,
+                e.status,
             ]
 
     def get_selected_uri(self):
