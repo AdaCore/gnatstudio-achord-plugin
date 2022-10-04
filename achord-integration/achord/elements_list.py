@@ -73,16 +73,39 @@ class ElementListWidget(object):
         self.default_fg = Gdk.RGBA(0, 0, 0)
         self.highlight_fg = Gdk.RGBA(255, 0, 0)
 
-        # Fill the model
-        self.fill_model()
-
         # Pack widgets in a box
         scroll = Gtk.ScrolledWindow()
         scroll.set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC)
         scroll.add(self.view)
 
         self.box = Gtk.VBox()
+
+        # The filter box
+        hbox = Gtk.HBox()
+        label = Gtk.Label("Filter: ")
+        hbox.pack_start(label, False, False, 3)
+        self.entry = Gtk.Entry()
+        hbox.pack_start(self.entry, True, True, 3)
+        button = Gtk.Button("Filter")
+        button.connect("clicked", lambda _: self.refresh(self.elements_list))
+        hbox.pack_start(button, False, False, 3)
+        button = Gtk.Button("Clear")
+        button.connect("clicked", lambda _: self.clear_filter_and_refresh())
+        hbox.pack_start(button, False, False, 3)
+        self.filter_label = Gtk.Label("")
+        self.filter_label.set_justify(Gtk.Justification.RIGHT)
+        self.filter_label.set_alignment(1.0, 0.5)
+        hbox.pack_start(self.filter_label, False, False, 3)
+        self.box.pack_start(hbox, False, False, 3)
         self.box.pack_start(scroll, True, True, 0)
+
+        # Fill the model
+        self.fill_model()
+
+    def clear_filter_and_refresh(self):
+        """Clear the filter and refresh the list"""
+        self.entry.set_text("")
+        self.refresh(self.elements_list)
 
     def refresh(self, elements_list):
         self.elements_list = elements_list
@@ -91,7 +114,14 @@ class ElementListWidget(object):
 
     def fill_model(self):
         """Fill the model from the elements dict"""
+        filter = self.entry.get_text()
+        elements_filtered_out = 0
         for e in self.elements_list:
+            # Apply the filter, if any
+            if filter.strip() != "":
+                if not (filter in e.uri + e.elementType + e.location):
+                    elements_filtered_out += 1
+                    continue
             it = self.store.append(None)
             self.store[it] = [
                 "",  # Label is unused for now
@@ -102,6 +132,10 @@ class ElementListWidget(object):
                 e.sourceStatus,
                 e.status,
             ]
+        total = len(self.elements_list)
+        self.filter_label.set_text(
+            f"({total} elements, {elements_filtered_out} filtered out)"
+        )
 
     def get_selected_uri(self):
         """Return the URI of the selected element, None if there isn't one"""
