@@ -8,7 +8,7 @@ global_id = 1
 
 class Payload(object):
     """A high-level raw representation of a jsonrpc payload.
-       Auto fills the "jsonrpc" field and the "id" field via  """
+    Auto fills the "jsonrpc" field and the "id" field via"""
 
     def __init__(self, method, params):
         self.method = method

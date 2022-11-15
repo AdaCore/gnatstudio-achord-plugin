@@ -7,7 +7,7 @@ from extensions.private.xml import X
 from modules import Module
 
 from achord.connection import ConnectionMonitor
-from achord.editor_actions import decorate_editor
+from achord.editor_actions import decorate_editor, remove_editor_decorations
 
 # This encodes the XML description of the Achord project attributes
 PROJECT_ATTRIBUTES = [
@@ -102,23 +102,24 @@ class Achord_Integration(Module):
         self.load_project()
 
     def disconnect(self):
-        """Open the elements view"""
-        GPS.Console().write("NOT IMPLEMENTED\n")
+        """Close the connection to Achord"""
+        if self.connection is not None:
+            self.connection.close()
 
     def annotate_editor(self):
-        """Open the elements view"""
         GPS.Console().write("NOT IMPLEMENTED\n")
 
     def remove_editor_annotations(self):
-        """Open the elements view"""
-        GPS.Console().write("NOT IMPLEMENTED\n")
+        """Remove the editor annotations"""
+        buf = GPS.EditorBuffer.get(create=None)
+        if buf is not None:
+            remove_editor_decorations(buf)
 
     def create_link(self):
         """Create a link from an Achord Element to a Code Element"""
         GPS.Console().write("NOT IMPLEMENTED\n")
 
     def create_code_element(self):
-        """Open the elements view"""
         GPS.Console().write("NOT IMPLEMENTED\n")
 
     def open_elements(self):
@@ -126,7 +127,6 @@ class Achord_Integration(Module):
         GPS.execute_action("open Achord Elements")
 
     def synchronise(self):
-        """Open the elements view"""
         GPS.Console().write("NOT IMPLEMENTED\n")
 
     def open_console(self):

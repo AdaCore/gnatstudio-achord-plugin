@@ -22,7 +22,16 @@ def open_element_info_dialog(message):
     d.run()
 
 
+def remove_editor_decorations(buffer):
+    """Remove Achord element annotations from the given editor buffer"""
+    file = buffer.file()
+    for m in GPS.Message.list():
+        if m.get_category() == CATEGORY and m.get_file() == file:
+            m.remove()
+
+
 def decorate_editor(buffer):
+    """Decorate an editor with the Achord element annotations"""
     unit = buffer.get_analysis_unit()
 
     if not unit.root.p_unit_kind == "unit_specification":

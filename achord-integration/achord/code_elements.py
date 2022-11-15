@@ -90,8 +90,8 @@ class AchordElement(object):
 SYNC_UNKNOWN = "SYNC_UNKNOWN"  #   unknown (initial state)
 SYNC_CONNECTED = "SYNC_CONNECTED"  # connected to source
 SYNC_ORPHANED = (
-    "SYNC_ORPHANED"
-)  #  orphaned: we don't know which source object it belongs to
+    "SYNC_ORPHANED"  #  orphaned: we don't know which source object it belongs to
+)
 
 
 class CodeElement(AchordElement):
